@@ -1,0 +1,28 @@
+name: Agent autonome
+on:
+  workflow_dispatch:
+    inputs:
+      goal:
+        description: "Objectif de l'agent"
+        required: true
+  schedule:
+    - cron: "0 7 * * 1"   # chaque lundi à 07:00 UTC (modifiez ou supprimez)
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: python main.py "${{ github.event.inputs.goal || vars.DEFAULT_GOAL }}"
+        env:
+          LLM_BASE_URL: https://api.groq.com/openai/v1
+          LLM_MODEL: llama-3.3-70b-versatile
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          MAX_STEPS: "15"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workspace
+          path: workspace/
