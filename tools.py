@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
-WORKSPACE = (Path(__file__).resolve().parent.parent / "workspace").resolve()
+WORKSPACE = (Path(__file__).resolve().parent / "workspace").resolve()
 WORKSPACE.mkdir(exist_ok=True)
 MAX_OUT = 6000
 

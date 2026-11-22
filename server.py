@@ -8,7 +8,7 @@ from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
 load_dotenv()
-from agent.core import run  # noqa: E402
+from core import run  # noqa: E402
 
 app = FastAPI(title="IA autonome gratuite")
 RUNS = {}

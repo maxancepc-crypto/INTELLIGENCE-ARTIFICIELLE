@@ -3,7 +3,8 @@ import json
 import os
 import re
 
-from . import llm, tools
+import llm
+import tools
 
 SYSTEM = """Tu es un agent autonome. Tu poursuis l'objectif de l'utilisateur étape par étape.
 À chaque tour, réponds UNIQUEMENT par un objet JSON :
