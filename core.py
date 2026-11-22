@@ -23,7 +23,7 @@ def _parse(text):
     return json.loads(m.group(0))
 
 
-def run(goal: str, on_step=print) -> str:
+def run(goal: str, on_step=print, history=None) -> str:
     max_steps = int(os.getenv("MAX_STEPS", "15"))
     catalog = "\n".join(f"- {n}: {d}" for n, (_, d) in tools.TOOLS.items())
     mem = ""
@@ -31,9 +31,13 @@ def run(goal: str, on_step=print) -> str:
         mem = tools.read_file("memory.md")
     except Exception:
         pass
+    hist = "\n".join(
+        f"{'Utilisateur' if h.get('role') == 'user' else 'Assistant'} : {str(h.get('content', ''))[:1500]}"
+        for h in (history or [])[-10:]
+    )
     msgs = [
         {"role": "system", "content": SYSTEM % catalog},
-        {"role": "user", "content": f"Objectif : {goal}\n\nMémoire :\n{mem or '(vide)'}"},
+        {"role": "user", "content": f"Objectif : {goal}\n\nHistorique de la conversation :\n{hist or '(aucun)'}\n\nMémoire :\n{mem or '(vide)'}"},
     ]
     for step in range(1, max_steps + 1):
         raw = llm.chat(msgs)
