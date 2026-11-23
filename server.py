@@ -42,10 +42,9 @@ header b{font-size:17px}
 .err{color:var(--ac)}
 details{margin-top:8px;color:var(--mut);font-size:13px;white-space:pre-wrap}
 summary{cursor:pointer}
-.think{color:var(--mut);font-size:14px}
-.dots span{animation:b 1.2s infinite;display:inline-block}
-.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
-@keyframes b{0%,60%,100%{opacity:.2}30%{opacity:1}}
+.think{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:14px}
+.pulse{flex:none;width:14px;height:14px;border-radius:50%;background:#e0482b;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(.6);opacity:.55}50%{transform:scale(1.15);opacity:1;box-shadow:0 0 14px rgba(224,72,43,.7)}}
 #welcome{text-align:center;margin-top:12vh}
 #welcome h1{font-size:28px;margin:0 0 6px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
@@ -76,6 +75,7 @@ let busy=false,timer=null;
 const SUGGEST=['Cherche la capitale de l’Australie','Résume l’actualité sur l’énergie solaire','Explique-moi comment fonctionne une batterie'];
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function thinking(t){return '<span class="think"><span class="pulse"></span><span>'+esc(t)+'</span></span>';}
 function md(s){
   let h=esc(s);
   h=h.replace(/```([\s\S]*?)```/g,(m,c)=>'<pre><code>'+c.replace(/^\w*\n/,'')+'</code></pre>');
@@ -124,7 +124,7 @@ async function send(){
   addMsg('user',esc(text));
   input.value='';input.style.height='auto';
   busy=true;sendBtn.disabled=true;
-  const bot=addMsg('bot','<span class="think">Réflexion<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>');
+  const bot=addMsg('bot',thinking('Réflexion…'));
   const fail=m=>{bot.innerHTML='<span class="err">'+esc(m)+'</span>';busy=false;sendBtn.disabled=false;};
   try{
     const r=await fetch('/run',{method:'POST',headers:{'x-token':token,'content-type':'application/json'},body:JSON.stringify({goal:text,history:prior})});
@@ -136,7 +136,7 @@ async function send(){
         const d=await (await fetch('/runs/'+id,{headers:{'x-token':token}})).json();
         if(d.status==='running'){
           const last=d.steps.length?d.steps[d.steps.length-1]:'';
-          bot.innerHTML='<span class="think">'+(last?esc(last.slice(0,140)):'Réflexion')+'<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>';
+          bot.innerHTML=thinking(last?last.slice(0,140):'Réflexion…');
           scroll();return;
         }
         clearInterval(timer);
